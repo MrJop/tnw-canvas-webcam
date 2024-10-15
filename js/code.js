@@ -9,6 +9,8 @@ var CanvasExample = {
     myContext: null,
     nCanvasWidth:0,
     nCanvasHeight:0,
+    myExportButton: $('.js-export'),
+    myHiddenDownloadButton: $('.js-hidden-download-button'),
 
     init: function () {
         this.myCanvas = $('.js-canvas');
@@ -17,6 +19,8 @@ var CanvasExample = {
         this.setCanvasSize(400, 300);
         this.drawBaseFrame();
         this.loadImage('img/dogs.png');
+        //
+        this.myExportButton.on('click', this.onExportButtonClicked.bind(this));
     },
 
     setCanvasSize: function (_width, _height) {
@@ -60,5 +64,11 @@ var CanvasExample = {
         //taking a part of the image and drawing it in a specific location
         this.myContext.drawImage(_image, 385, 0, 440, 460, 20, 20, 220, 230);
         this.myContext.drawImage(_image, 385, 0, 440, 460, 260, 50, 110, 115);
+    },
+
+    onExportButtonClicked: function () {
+        //https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toDataURL
+        this.myHiddenDownloadButton.attr('href', this.myCanvas[0].toDataURL());
+        this.myHiddenDownloadButton[0].click();
     }
 }
