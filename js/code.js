@@ -2,6 +2,7 @@ var $ = jQuery.noConflict();
 
 $(document).ready(function(e) {
     CanvasExample.init();
+    WebcamFeed.init();
 });
 
 var CanvasExample = {
@@ -66,9 +67,70 @@ var CanvasExample = {
         this.myContext.drawImage(_image, 385, 0, 440, 460, 260, 50, 110, 115);
     },
 
+    drawWebcamFeed: function (_cameraFeed) {
+        this.myContext.drawImage(_cameraFeed, 0, 0);
+    },
+
     onExportButtonClicked: function () {
         //https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toDataURL
         this.myHiddenDownloadButton.attr('href', this.myCanvas[0].toDataURL());
         this.myHiddenDownloadButton[0].click();
     }
 }
+
+var WebcamFeed = {
+    video: null,
+    bCameraActivated: false,
+    nVideoWidth:0,
+    nVideoHeight:0,
+    myActivateWebcamButton:$('.js-activate-webcam'),
+
+    init: function () {
+        this.video = $('.js-webcam-stream');
+        this.myActivateWebcamButton.on('click', this.activateWebcam.bind(this));
+    },
+
+    activateWebcam() {
+        if(!this.bCameraActivated) {
+            this.myActivateWebcamButton.off('click');
+            this.myActivateWebcamButton.hide();
+
+            var vdo = this.video[0];
+            var that = this;
+
+            navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: false
+            })
+                .then(function (stream) {
+                    vdo.srcObject = stream;
+                    vdo.play();
+                    that.setCanvasAndVideoSize();
+                })
+                .catch(function (err) {
+                    console.log("An error occurred: " + err);
+                });
+
+            this.bCameraActivated = true;
+            this.renderCameraToCanvas();
+        }
+    },
+
+    setCanvasAndVideoSize: function () {
+        this.nVideoWidth = this.video.width();
+        this.nVideoHeight = this.video.height();
+        //
+        CanvasExample.setCanvasSize(this.nVideoWidth, this.nVideoHeight);
+    },
+
+    renderCameraToCanvas: function () {
+        if(this.nVideoWidth != this.video.width()){
+            //during start up it may be 0 for a short moment
+            this.setCanvasAndVideoSize();
+        }
+
+        CanvasExample.drawWebcamFeed(this.video[0]);
+
+        window.requestAnimationFrame(this.renderCameraToCanvas.bind(this));
+    }
+};

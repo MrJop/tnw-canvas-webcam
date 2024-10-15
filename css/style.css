@@ -22,6 +22,12 @@ canvas {
     margin-bottom: 20px;
 }
 
+.input-stream {
+    position: relative;
+    margin-bottom: 20px;
+    display: none;
+}
+
 .hidden-link {
     display: none;
 }
