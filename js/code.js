@@ -2,10 +2,11 @@ var $ = jQuery.noConflict();
 
 $(document).ready(function(e) {
     CanvasExample.init();
-    WebcamFeed.init();
+    //JopMadness.init();
 });
 
 var CanvasExample = {
+    myContainer:$('.js-example-one'),
     myCanvas: null,
     myContext: null,
     nCanvasWidth:0,
@@ -14,7 +15,9 @@ var CanvasExample = {
     myHiddenDownloadButton: $('.js-hidden-download-button'),
 
     init: function () {
-        this.myCanvas = $('.js-canvas');
+        this.myContainer.addClass('--show');
+        //
+        this.myCanvas = $('.js-example-one .js-canvas');
         this.myContext = this.myCanvas[0].getContext('2d');
         //
         this.setCanvasSize(400, 300);
@@ -22,6 +25,8 @@ var CanvasExample = {
         this.loadImage('img/dogs.png');
         //
         this.myExportButton.on('click', this.onExportButtonClicked.bind(this));
+
+        WebcamFeed.init(this);
     },
 
     setCanvasSize: function (_width, _height) {
@@ -84,8 +89,10 @@ var WebcamFeed = {
     nVideoWidth:0,
     nVideoHeight:0,
     myActivateWebcamButton:$('.js-activate-webcam'),
+    myController:null,
 
-    init: function () {
+    init: function (_controller) {
+        this.myController = _controller;
         this.video = $('.js-webcam-stream');
         this.myActivateWebcamButton.on('click', this.activateWebcam.bind(this));
     },
@@ -120,7 +127,7 @@ var WebcamFeed = {
         this.nVideoWidth = this.video.width();
         this.nVideoHeight = this.video.height();
         //
-        CanvasExample.setCanvasSize(this.nVideoWidth, this.nVideoHeight);
+        this.myController.setCanvasSize(this.nVideoWidth, this.nVideoHeight);
     },
 
     renderCameraToCanvas: function () {
@@ -129,8 +136,58 @@ var WebcamFeed = {
             this.setCanvasAndVideoSize();
         }
 
-        CanvasExample.drawWebcamFeed(this.video[0]);
+        this.myController.drawWebcamFeed(this.video[0]);
 
         window.requestAnimationFrame(this.renderCameraToCanvas.bind(this));
+    }
+};
+
+var JopMadness = {
+    DRAW_SCALE:0.2,
+    DRAW_EVERY_X_FRAMES:4,
+
+    myContainer:$('.js-jop-madness'),
+    myCanvas: null,
+    myContext: null,
+    nCanvasWidth:0,
+    nCanvasHeight:0,
+    nDrawCount:0,
+    nDrawX:0,
+    nDrawY:0,
+
+    init: function () {
+        this.myContainer.addClass('--show');
+
+        this.myCanvas = $('.js-jop-madness .js-canvas');
+        this.myContext = this.myCanvas[0].getContext('2d');
+
+        WebcamFeed.init(this);
+    },
+
+    setCanvasSize: function (_width, _height) {
+        this.myCanvas[0].setAttribute('width', _width);
+        this.myCanvas[0].setAttribute('height', _height);
+        //
+        this.nCanvasWidth = _width;
+        this.nCanvasHeight = _height;
+    },
+
+    drawWebcamFeed: function (_cameraFeed) {
+        if(this.nDrawCount % this.DRAW_EVERY_X_FRAMES == 0){
+            this.myContext.drawImage(_cameraFeed, 0, 0, WebcamFeed.nVideoWidth, WebcamFeed.nVideoHeight, this.nDrawX, this.nDrawY, WebcamFeed.nVideoWidth * this.DRAW_SCALE, WebcamFeed.nVideoHeight * this.DRAW_SCALE);
+            this.nDrawX+=WebcamFeed.nVideoWidth * this.DRAW_SCALE;
+
+            if(this.nDrawX > this.nCanvasWidth){
+                this.nDrawX = 0;
+                this.nDrawY += WebcamFeed.nVideoHeight * this.DRAW_SCALE;
+            }
+
+            if(this.nDrawY > this.nCanvasHeight){
+                this.nDrawX = 0;
+                this.nDrawY = 0;
+            }
+        }
+
+        this.nDrawCount++;
     }
 };
