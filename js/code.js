@@ -9,6 +9,7 @@ var CanvasExample = {
     DRAW_TIKTOK_VERTICAL:'draw tik tok vertical',
     DRAW_TIKTOK_HORIZONTAL:'draw tik tok horizontal',
     DRAW_NORMAL:'draw normal',
+    DRAW_EXPERIMENT:'draw experiment',
 
     myContainer:$('.js-example-one'),
     myCanvas: null,
@@ -24,7 +25,7 @@ var CanvasExample = {
     sDrawStyle:null,
 
     init: function () {
-        this.sDrawStyle = this.DRAW_TIKTOK_VERTICAL;
+        this.sDrawStyle = this.DRAW_EXPERIMENT;
         //
         this.myContainer.addClass('--show');
         //
@@ -105,6 +106,18 @@ var CanvasExample = {
 
             case this.DRAW_NORMAL:
                 this.myContext.drawImage(_cameraFeed, 0, 0);
+                break;
+
+            case this.DRAW_EXPERIMENT:
+                for(var i=0;i<10;i++) {
+                    var ry = Math.random() * this.nCanvasHeight;
+                    this.myContext.drawImage(_cameraFeed, 0, ry, WebcamFeed.nVideoWidth, this.nDrawBarHeight, 0, ry, this.nCanvasWidth, this.nDrawBarHeight);
+                }
+                this.nDrawY += this.nDrawBarHeight;
+                //
+                if (this.nDrawY > this.nCanvasHeight) {
+                    this.nDrawY = 0;
+                }
                 break;
         }
 
