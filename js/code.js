@@ -6,6 +6,10 @@ $(document).ready(function(e) {
 });
 
 var CanvasExample = {
+    DRAW_TIKTOK_VERTICAL:'draw tik tok vertical',
+    DRAW_TIKTOK_HORIZONTAL:'draw tik tok horizontal',
+    DRAW_NORMAL:'draw normal',
+
     myContainer:$('.js-example-one'),
     myCanvas: null,
     myContext: null,
@@ -13,8 +17,15 @@ var CanvasExample = {
     nCanvasHeight:0,
     myExportButton: $('.js-export'),
     myHiddenDownloadButton: $('.js-hidden-download-button'),
+    nDrawY:0,
+    nDrawBarHeight:1,
+    nDrawX:0,
+    nDrawBarWidth:1,
+    sDrawStyle:null,
 
     init: function () {
+        this.sDrawStyle = this.DRAW_TIKTOK_VERTICAL;
+        //
         this.myContainer.addClass('--show');
         //
         this.myCanvas = $('.js-example-one .js-canvas');
@@ -73,7 +84,30 @@ var CanvasExample = {
     },
 
     drawWebcamFeed: function (_cameraFeed) {
-        this.myContext.drawImage(_cameraFeed, 0, 0);
+        switch(this.sDrawStyle) {
+            case this.DRAW_TIKTOK_VERTICAL:
+                this.myContext.drawImage(_cameraFeed, 0, this.nDrawY, WebcamFeed.nVideoWidth, this.nDrawBarHeight, 0, this.nDrawY, this.nCanvasWidth, this.nDrawBarHeight);
+                this.nDrawY += this.nDrawBarHeight;
+                //
+                if (this.nDrawY > this.nCanvasHeight) {
+                    this.nDrawY = 0;
+                }
+                break;
+
+            case this.DRAW_TIKTOK_HORIZONTAL:
+                this.myContext.drawImage(_cameraFeed, this.nDrawX, 0, this.nDrawBarWidth, WebcamFeed.nVideoHeight, this.nDrawX, 0, this.nDrawBarWidth, this.nCanvasHeight);
+                this.nDrawX += this.nDrawBarWidth;
+                //
+                if (this.nDrawX > this.nCanvasWidth) {
+                    this.nDrawX = 0;
+                }
+                break;
+
+            case this.DRAW_NORMAL:
+                this.myContext.drawImage(_cameraFeed, 0, 0);
+                break;
+        }
+
     },
 
     onExportButtonClicked: function () {
@@ -143,8 +177,8 @@ var WebcamFeed = {
 };
 
 var JopMadness = {
-    DRAW_SCALE:0.2,
-    DRAW_EVERY_X_FRAMES:4,
+    DRAW_SCALE:0.1,
+    DRAW_EVERY_X_FRAMES:2,
 
     myContainer:$('.js-jop-madness'),
     myCanvas: null,
